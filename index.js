@@ -1,1 +1,1 @@
-process.exit(0)
+// This is a placeholder.
