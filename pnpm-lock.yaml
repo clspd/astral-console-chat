@@ -7,25 +7,27 @@ settings:
 importers:
 
   .:
+    dependencies:
+      ink:
+        specifier: ~7.0.1
+        version: 7.0.1(react@19.2.5)
+      react:
+        specifier: ~19.2.5
+        version: 19.2.5
     devDependencies:
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0
-      ink:
-        specifier: ^7.0.1
-        version: 7.0.1(react@19.2.5)
-      only-allow:
-        specifier: ~1.2.2
-        version: 1.2.2
-      react:
-        specifier: ^19.2.5
-        version: 19.2.5
       tsdown:
         specifier: ^0.21.10
         version: 0.21.10(typescript@6.0.3)
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+    optionalDependencies:
+      only-allow:
+        specifier: ~1.2.2
+        version: 1.2.2
 
 packages:
 
@@ -797,6 +799,7 @@ snapshots:
   only-allow@1.2.2:
     dependencies:
       which-pm-runs: 1.1.0
+    optional: true
 
   patch-console@2.0.0: {}
 
@@ -943,7 +946,8 @@ snapshots:
     dependencies:
       rolldown: 1.0.0-rc.17
 
-  which-pm-runs@1.1.0: {}
+  which-pm-runs@1.1.0:
+    optional: true
 
   widest-line@6.0.0:
     dependencies:

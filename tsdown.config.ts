@@ -14,7 +14,7 @@ export default defineConfig({
     onlyBundle: false,
     neverBundle: ["react-devtools-core"],
   },
-  sourcemap: true,
+  sourcemap: false,
   minify: true,
   clean: true,
   fixedExtension: false,

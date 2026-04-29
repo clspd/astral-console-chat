@@ -1,6 +1,6 @@
 {
   "name": "astral-console-chat",
-  "version": "0.0.0-alpha.2",
+  "version": "0.0.0-alpha.3",
   "description": "A console chat client",
   "keywords": [
     "back-end",
@@ -30,7 +30,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "postinstall": "only-allow pnpm",
+    "postinstall": "node postinstall.js",
     "test": "echo \"Error: no test specified\" && exit 0",
     "dev": "tsdown --watch",
     "build": "tsdown",
@@ -45,12 +45,16 @@
     "url": "git+https://github.com/clspd/astral-console-chat.git"
   },
   "packageManager": "pnpm",
+  "dependencies": {
+    "ink": "~7.0.1",
+    "react": "~19.2.5"
+  },
   "devDependencies": {
     "@types/node": "^25.6.0",
-    "ink": "^7.0.1",
-    "only-allow": "~1.2.2",
-    "react": "^19.2.5",
     "tsdown": "^0.21.10",
     "typescript": "^6.0.3"
+  },
+  "optionalDependencies": {
+    "only-allow": "~1.2.2"
   }
 }
