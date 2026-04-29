@@ -1,6 +1,6 @@
 {
   "name": "astral-console-chat",
-  "version": "0.0.0-alpha.3",
+  "version": "0.0.0-alpha.4",
   "description": "A console chat client",
   "keywords": [
     "back-end",
@@ -23,6 +23,7 @@
     ".scripts/**/*",
     "src/**",
     "dist/**",
+    "postinstall.js",
     "tsconfig.json",
     "tsdown.config.ts",
     "README.md",
