@@ -1,8 +1,9 @@
 import { defineConfig } from 'tsdown'
+import banner from './banner.mjs'
 
 export default defineConfig({
   entry: {
-    cli: './src/cli.tsx',
+    cli: './src/bootstrap.tsx',
   },
   format: ['esm'],
   platform: 'node',
@@ -12,10 +13,14 @@ export default defineConfig({
   },
   deps: {
     onlyBundle: false,
-    neverBundle: ["react-devtools-core"],
+    neverBundle: [],
+  },
+  outputOptions: {
+    codeSplitting: false,
   },
   sourcemap: false,
   minify: true,
   clean: true,
   fixedExtension: false,
-});
+  banner: { js: banner },
+})
