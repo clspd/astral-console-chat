@@ -10,19 +10,13 @@ export type StoreApi<S extends object> = {
     subscribe: (listener: Listener) => () => void;
 };
 
-export type StoreInstance<
-    S extends object,
-    A extends Record<string, AnyFn>,
-> = S &
+export type StoreInstance<S extends object, A extends Record<string, AnyFn>> = S &
     A &
     StoreApi<S> & {
         use: <T>(selector: (store: StoreInstance<S, A>) => T) => T;
     };
 
-export type StoreDefinition<
-    S extends object,
-    A extends Record<string, AnyFn> = {}
-> = {
+export type StoreDefinition<S extends object, A extends Record<string, AnyFn> = {}> = {
     state: () => S;
     actions?: A & ThisType<StoreInstance<S, A>>;
 };
@@ -30,10 +24,9 @@ export type StoreDefinition<
 const Store = Object.create(null);
 Store[Symbol.toStringTag] = () => 'Store';
 
-export function createStore<
-    S extends object,
-    A extends Record<string, AnyFn> = {}
->(def: StoreDefinition<S, A>): StoreInstance<S, A> {
+export function createStore<S extends object, A extends Record<string, AnyFn> = {}>(
+    def: StoreDefinition<S, A>,
+): StoreInstance<S, A> {
     const initialState = def.state();
     let state = initialState;
     const listeners = new Set<Listener>();
@@ -57,14 +50,14 @@ export function createStore<
     };
 
     const store = Object.create(Store) as StoreInstance<S, A>;
-    
+
     Object.defineProperties(store, {
         getState: { value: () => state, enumerable: false },
         setState: { value: setState, enumerable: false },
         patch: { value: patch, enumerable: false },
         subscribe: { value: subscribe, enumerable: false },
         use: {
-            value: <T,>(selector: (s: StoreInstance<S, A>) => T) =>
+            value: <T>(selector: (s: StoreInstance<S, A>) => T) =>
                 useSyncExternalStore(
                     subscribe,
                     () => selector(store),
@@ -79,7 +72,7 @@ export function createStore<
             enumerable: true,
             get: () => state[key],
             set: (value: S[typeof key]) => {
-                setState((prev) => ({ ...prev, [key]: value } as S));
+                setState((prev) => ({ ...prev, [key]: value }) as S);
             },
         });
     }
@@ -94,4 +87,3 @@ export function createStore<
 
     return store;
 }
-

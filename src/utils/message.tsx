@@ -68,8 +68,8 @@ function MessageRow({ item }: { item: MessageItem }) {
                 <Text> </Text>
                 <Text>
                     {typeof item.content === 'string' ||
-                        typeof item.content === 'number' ||
-                        typeof item.content === 'boolean'
+                    typeof item.content === 'number' ||
+                    typeof item.content === 'boolean'
                         ? clampText(item.content)
                         : item.content}
                 </Text>
@@ -85,14 +85,14 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
     const timersRef = useRef(new Map<number, NodeJS.Timeout>());
 
     const destroy = useCallback((id?: number) => {
-        setMessages(prev => {
+        setMessages((prev) => {
             if (typeof id === 'number') {
                 const timer = timersRef.current.get(id);
                 if (timer) {
                     clearTimeout(timer);
                     timersRef.current.delete(id);
                 }
-                return prev.filter(item => item.id !== id);
+                return prev.filter((item) => item.id !== id);
             }
 
             for (const timer of timersRef.current.values()) {
@@ -103,31 +103,28 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
         });
     }, []);
 
-    const show = useCallback(
-        (options: MessageOptions) => {
-            const id = nextIdRef.current++;
-            const item: MessageItem = {
-                id,
-                type: options.type ?? 'info',
-                content: options.content,
-                duration: options.duration ?? 2000,
-            };
+    const show = useCallback((options: MessageOptions) => {
+        const id = nextIdRef.current++;
+        const item: MessageItem = {
+            id,
+            type: options.type ?? 'info',
+            content: options.content,
+            duration: options.duration ?? 2000,
+        };
 
-            setMessages(prev => [item, ...prev].slice(0, 5));
+        setMessages((prev) => [item, ...prev].slice(0, 5));
 
-            if (item.duration > 0) {
-                const timer = setTimeout(() => {
-                    setMessages(prev => prev.filter(m => m.id !== id));
-                    timersRef.current.delete(id);
-                }, item.duration);
+        if (item.duration > 0) {
+            const timer = setTimeout(() => {
+                setMessages((prev) => prev.filter((m) => m.id !== id));
+                timersRef.current.delete(id);
+            }, item.duration);
 
-                timersRef.current.set(id, timer);
-            }
+            timersRef.current.set(id, timer);
+        }
 
-            return id;
-        },
-        [],
-    );
+        return id;
+    }, []);
 
     useEffect(() => {
         return () => {
@@ -141,10 +138,30 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
     const api = useMemo<MessageApi>(
         () => ({
             show,
-            info: (content, duration) => show(duration !== undefined ? { type: 'info', content, duration } : { type: 'info', content }),
-            success: (content, duration) => show(duration !== undefined ? { type: 'success', content, duration } : { type: 'success', content }),
-            warning: (content, duration) => show(duration !== undefined ? { type: 'warning', content, duration } : { type: 'warning', content }),
-            error: (content, duration) => show(duration !== undefined ? { type: 'error', content, duration } : { type: 'error', content }),
+            info: (content, duration) =>
+                show(
+                    duration !== undefined
+                        ? { type: 'info', content, duration }
+                        : { type: 'info', content },
+                ),
+            success: (content, duration) =>
+                show(
+                    duration !== undefined
+                        ? { type: 'success', content, duration }
+                        : { type: 'success', content },
+                ),
+            warning: (content, duration) =>
+                show(
+                    duration !== undefined
+                        ? { type: 'warning', content, duration }
+                        : { type: 'warning', content },
+                ),
+            error: (content, duration) =>
+                show(
+                    duration !== undefined
+                        ? { type: 'error', content, duration }
+                        : { type: 'error', content },
+                ),
             destroy,
         }),
         [destroy, show],
@@ -154,7 +171,7 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
         <MessageContext.Provider value={api}>
             <Box flexDirection="column" width={columns}>
                 <Box flexDirection="column" width="100%" paddingX={1} paddingTop={1}>
-                    {messages.map(item => (
+                    {messages.map((item) => (
                         <MessageRow key={item.id} item={item} />
                     ))}
                 </Box>
@@ -174,4 +191,3 @@ export function useMessage() {
     }
     return ctx;
 }
-

@@ -8,17 +8,18 @@ export interface ConversationState {
     conversation: Conversation | null;
     status: 'empty' | 'loading' | 'ready' | 'error';
     error: string | null;
-};
+}
 
 export const defineConversationState = (c: ConversationState) => c;
 
 export const conversationStore = createStore({
-    state: () => defineConversationState({
-        rawInput: null,
-        currentConversationPath: null,
-        unsaved: false,
-        conversation: null,
-        status: 'empty',
-        error: null,
-    }),
+    state: () =>
+        defineConversationState({
+            rawInput: null,
+            currentConversationPath: null,
+            unsaved: false,
+            conversation: null,
+            status: 'empty',
+            error: null,
+        }),
 });

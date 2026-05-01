@@ -1,24 +1,16 @@
-import { parseArgs } from 'node:util';
+import { parseCliArgs } from './cli/parse.js';
 import { init } from './init.js';
 import { startApp } from './ui.tsx';
 
 export async function main(argc: number, argv: string[]): Promise<number> {
-    const { values, positionals } = parseArgs({
-        args: argv,
-        options: {
-            help: { type: 'boolean', short: 'h' },
-        },
-        positional: ['input'],
-        allowPositionals: true,
-    });
+    const { action, positionals } = parseCliArgs(argv);
 
-    if (values.help) {
-        (await import('./cli/help.ts')).printHelp();
+    if (action) {
+        await action();
         return 0;
     }
 
-    await init(values, positionals);
-
+    await init(positionals);
     await startApp();
     return 0;
 }

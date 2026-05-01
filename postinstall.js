@@ -10,10 +10,14 @@ const isDev = existsSync(join(__dirname, 'IS_DEV'))
 const onlyAllowPath = join(__dirname, 'node_modules', '.bin', 'only-allow')
 const onlyAllowExists = existsSync(onlyAllowPath)
 
+const execConfig = {
+  cwd: __dirname,
+  stdio: 'inherit'
+}
+
 if (isDev && onlyAllowExists) {
-  execSync(`"${onlyAllowPath}" pnpm`, {
-    cwd: __dirname,
-    stdio: 'inherit'
-  });
+  execSync(`"${onlyAllowPath}" pnpm`, execConfig);
   console.log('Good');
 }
+
+execSync('node prepare.mjs', execConfig);

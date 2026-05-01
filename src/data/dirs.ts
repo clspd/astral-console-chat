@@ -44,14 +44,14 @@ export async function initAppDir(): Promise<void> {
     await mkdir(getChatsDir(), { recursive: true });
 
     const versionPath = getVersionPath();
-    if (!await exists(versionPath)) {
+    if (!(await exists(versionPath))) {
         await writeFile(versionPath, app_data_version, 'utf-8');
     }
 }
 
 export async function checkVersion(): Promise<void> {
     const versionPath = getVersionPath();
-    if (!await exists(versionPath)) {
+    if (!(await exists(versionPath))) {
         throw new TypeError('Application data directory is corrupted: ._version file is missing');
     }
     const version = (await readFile(versionPath, { encoding: 'utf-8' })).trim();

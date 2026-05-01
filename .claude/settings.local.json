@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(npx tsc *)",
-      "Bash(pnpm build *)"
+      "Bash(pnpm build *)",
+      "Bash(pnpm run build)",
+      "Bash(pnpm build-only *)",
+      "Bash(pnpm run type-check)",
+      "Bash(pnpm type-check)"
     ]
   }
 }

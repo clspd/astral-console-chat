@@ -3,7 +3,7 @@ import banner from './banner.mjs'
 
 export default defineConfig({
   entry: {
-    cli: './src/bootstrap.tsx',
+    cli: './src/bootstrap.ts',
   },
   format: ['esm'],
   platform: 'node',

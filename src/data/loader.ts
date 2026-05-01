@@ -22,9 +22,7 @@ async function LoadConversationFromFile(filePath: string): Promise<Conversation>
     }
 
     if (!conv.schemaVersion || !(conv.schemaVersion in SchemaVersion)) {
-        throw new TypeError(
-            `Unsupported schema version in "${filePath}": ${conv.schemaVersion}`,
-        );
+        throw new TypeError(`Unsupported schema version in "${filePath}": ${conv.schemaVersion}`);
     }
 
     return conv;
@@ -44,7 +42,7 @@ async function CreateEmptyConversation(): Promise<{ conv: Conversation; path: st
         },
         history: [],
         content: {
-            name: "New Topic",
+            name: 'New Topic',
             content: [],
         },
     };
@@ -85,12 +83,10 @@ export async function InitConversation(rawInput: string | null): Promise<void> {
 
         // 1b：在 _chats/ 中存在
         // 如果 rawInput 是绝对路径则直接用，否则在 _chats/ 中查找
-        const chatsPath = isAbsolute(rawInput)
-            ? rawInput
-            : join(getChatsDir(), `${rawInput}.json`);
+        const chatsPath = isAbsolute(rawInput) ? rawInput : join(getChatsDir(), `${rawInput}.json`);
 
         if (await exists(chatsPath)) {
-                try {
+            try {
                 const conv = await LoadConversationFromFile(chatsPath);
                 conversationStore.patch({
                     conversation: conv,
@@ -99,7 +95,7 @@ export async function InitConversation(rawInput: string | null): Promise<void> {
                     status: 'ready',
                 });
                 return;
-                } catch (err) {
+            } catch (err) {
                 conversationStore.patch({
                     status: 'error',
                     error: `Failed to load conversation: ${String(err)}`,

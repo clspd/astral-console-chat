@@ -21,14 +21,16 @@ export default function MessageList() {
                 const roleLabel = msg.role === MessageRole.User ? 'User' : 'Assistant';
                 const roleColor = msg.role === MessageRole.User ? 'cyan' : 'green';
                 const content = msg.fragments
-                    .filter(f => f.type === 'text')
-                    .map(f => f.content)
+                    .filter((f) => f.type === 'text')
+                    .map((f) => f.content)
                     .join('');
 
                 return (
                     <Box key={msg.id} paddingY={0}>
                         <Text>
-                            <Text color={roleColor} bold>{roleLabel}: </Text>
+                            <Text color={roleColor} bold>
+                                {roleLabel}:{' '}
+                            </Text>
                             <Text>{content}</Text>
                         </Text>
                     </Box>

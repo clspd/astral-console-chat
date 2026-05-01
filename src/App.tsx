@@ -3,44 +3,27 @@ import { Box, Text, useWindowSize, useApp } from 'ink';
 import { useConversation } from '@/states/useConversation.ts';
 import { app_name } from '@/config.ts';
 import '@/commands/index.ts';
-import { getCommand } from '@/commands/registry.ts';
-import { useMessage } from '@/utils/message.tsx';
+import { useCommandDispatch } from '@/commands/useCommandDispatch.ts';
+import { AlertDialog } from '@/utils/modal.tsx';
 import MessageList from '@/components/MessageList.tsx';
 import UserInput from '@/components/UserInput.tsx';
-
-function extractCommandName(input: string): string {
-  const spaceIndex = input.indexOf(' ');
-  if (spaceIndex === -1) return input.slice(1);
-  return input.slice(1, spaceIndex);
-}
 
 export default function App() {
     const { conversation, status, error, unsaved } = useConversation();
     const { columns, rows } = useWindowSize();
     const [inputValue, setInputValue] = useState('');
     const { exit } = useApp();
-    const message = useMessage();
+    const { alert, setAlert, executeCommand } = useCommandDispatch(exit);
 
     const handleSubmit = useCallback(
         (value: string) => {
-            const trimmed = value.trim();
-            if (trimmed.length === 0) return;
-
-            if (trimmed[0] === '/') {
-                const cmdName = extractCommandName(trimmed);
-                const cmd = getCommand(cmdName);
-                if (cmd) {
-                    cmd.execute({ exit });
-                    return;
-                }
-                message.error(`Unknown command: /${cmdName}`);
-                setInputValue('');
+            setInputValue('');
+            if (value[0] === '/') {
+                executeCommand(value);
                 return;
             }
-
-            setInputValue('');
         },
-        [exit, message],
+        [executeCommand],
     );
 
     if (status === 'loading') {
@@ -82,12 +65,15 @@ export default function App() {
                 <Box>
                     <Text dimColor>{sep}</Text>
                 </Box>
-                <UserInput
-                    value={inputValue}
-                    onChange={setInputValue}
-                    onSubmit={handleSubmit}
-                />
+                <UserInput value={inputValue} onChange={setInputValue} onSubmit={handleSubmit} />
             </Box>
+
+            <AlertDialog
+                open={alert !== null}
+                title={alert?.title ?? ''}
+                description={alert?.description}
+                onClose={() => setAlert(null)}
+            />
         </Box>
     );
 }

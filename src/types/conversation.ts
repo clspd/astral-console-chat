@@ -3,7 +3,7 @@
 // ============================================================
 
 export enum SchemaVersion {
-  V1 = 1,
+    V1 = 1,
 }
 
 // ============================================================
@@ -11,24 +11,24 @@ export enum SchemaVersion {
 // ============================================================
 
 export enum MessageRole {
-  User = 'USER',
-  Assistant = 'ASSISTANT',
-  System = 'SYSTEM',
-  Tool = 'TOOL',
-  ToolResult = 'TOOL_RESULT',
+    User = 'USER',
+    Assistant = 'ASSISTANT',
+    System = 'SYSTEM',
+    Tool = 'TOOL',
+    ToolResult = 'TOOL_RESULT',
 }
 
 export enum MessageStatus {
-  Finished = 'FINISHED',
-  WIP = 'WIP',
-  Error = 'ERROR',
-  Interrupted = 'INTERRUPTED',
+    Finished = 'FINISHED',
+    WIP = 'WIP',
+    Error = 'ERROR',
+    Interrupted = 'INTERRUPTED',
 }
 
 export enum MessageFeedback {
-  NotProvided = '',
-  Positive = '+',
-  Negative = '-',
+    NotProvided = '',
+    Positive = '+',
+    Negative = '-',
 }
 
 // ============================================================
@@ -36,24 +36,25 @@ export enum MessageFeedback {
 // ============================================================
 
 export enum MessageFragmentType {
-  TextFragment = 'text',
+    TextFragment = 'text',
 }
 
 export enum MessageContentType {
-  Text = 'text',
+    Text = 'text',
 }
 
-export type MessageContent<T extends MessageContentType> =
-  T extends MessageContentType.Text ? string : never;
+export type MessageContent<T extends MessageContentType> = T extends MessageContentType.Text
+    ? string
+    : never;
 
 export interface MessageFragment {
-  id: number;
-  type: MessageFragmentType;
-  ts: number;
-  elapsed?: number;
-  first_token_latency?: number;
-  contentType: MessageContentType;
-  content: MessageContent<this['contentType']>;
+    id: number;
+    type: MessageFragmentType;
+    ts: number;
+    elapsed?: number;
+    first_token_latency?: number;
+    contentType: MessageContentType;
+    content: MessageContent<this['contentType']>;
 }
 
 // ============================================================
@@ -61,17 +62,17 @@ export interface MessageFragment {
 // ============================================================
 
 export enum MessageFeatureType {
-  Thinking = 'thinking',
-  MaxTokensLimit = 'max_tokens_limit',
-  BanEdit = 'ban_edit',
-  BanRegenerate = 'ban_regenerate',
+    Thinking = 'thinking',
+    MaxTokensLimit = 'max_tokens_limit',
+    BanEdit = 'ban_edit',
+    BanRegenerate = 'ban_regenerate',
 }
 
 export type MessageFeatureValue = boolean | string | number;
 
 export interface MessageFeatureItem {
-  type: MessageFeatureType;
-  value: MessageFeatureValue;
+    type: MessageFeatureType;
+    value: MessageFeatureValue;
 }
 
 // ============================================================
@@ -79,16 +80,16 @@ export interface MessageFeatureItem {
 // ============================================================
 
 export interface FileAttachmentInfo {
-  id: string;
-  name: string;
-  type: string;
-  size: number;
-  hash: string;
-  path: string;
+    id: string;
+    name: string;
+    type: string;
+    size: number;
+    hash: string;
+    path: string;
 }
 
 export interface MessageUsage {
-  total_tokens: number;
+    total_tokens: number;
 }
 
 // ============================================================
@@ -96,19 +97,19 @@ export interface MessageUsage {
 // ============================================================
 
 export interface Message {
-  id: number;
-  parent_id: number | null;
-  role: MessageRole;
-  ts: number;
+    id: number;
+    parent_id: number | null;
+    role: MessageRole;
+    ts: number;
 
-  features?: MessageFeatureItem[];
-  feedback?: MessageFeedback;
-  usage?: MessageUsage;
+    features?: MessageFeatureItem[];
+    feedback?: MessageFeedback;
+    usage?: MessageUsage;
 
-  status: MessageStatus;
-  files: FileAttachmentInfo[];
-  fragments: MessageFragment[];
-  has_pending_fragment: boolean;
+    status: MessageStatus;
+    files: FileAttachmentInfo[];
+    fragments: MessageFragment[];
+    has_pending_fragment: boolean;
 }
 
 // ============================================================
@@ -116,8 +117,8 @@ export interface Message {
 // ============================================================
 
 export interface MessageContainer {
-  name: string;
-  content: Message[];
+    name: string;
+    content: Message[];
 }
 
 // ============================================================
@@ -125,15 +126,15 @@ export interface MessageContainer {
 // ============================================================
 
 export interface ConversationStatus {
-  created_at: number;
-  updated_at: number;
+    created_at: number;
+    updated_at: number;
 }
 
 export interface Conversation {
-  schemaVersion: SchemaVersion;
-  appid: string;
-  name: string;
-  stat: ConversationStatus;
-  history: MessageContainer[];
-  content: MessageContainer;
+    schemaVersion: SchemaVersion;
+    appid: string;
+    name: string;
+    stat: ConversationStatus;
+    history: MessageContainer[];
+    content: MessageContainer;
 }
