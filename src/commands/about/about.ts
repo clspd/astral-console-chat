@@ -4,7 +4,7 @@ import type { Command } from '../types.ts';
 export const aboutCommand: Command = {
     name: 'about',
     description: 'Show about information',
-    execute(ctx) {
+    execute(ctx, _rest) {
         const name = DYNDATA.packageJson?.name ?? 'astral-console-chat';
         const version = DYNDATA.packageJson?.version ?? 'unknown';
         const homepage = DYNDATA.packageJson?.homepage ?? '';

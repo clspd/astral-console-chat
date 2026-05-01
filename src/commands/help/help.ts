@@ -13,7 +13,7 @@ function formatHelp(): string {
 export const helpCommand: Command = {
     name: 'help',
     description: 'Show help information',
-    execute(ctx) {
+    execute(ctx, _rest) {
         ctx.showAlert({
             title: 'Help',
             description: formatHelp(),

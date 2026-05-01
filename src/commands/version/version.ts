@@ -5,7 +5,7 @@ import type { Command } from '../types.ts';
 export const versionCommand: Command = {
     name: 'version',
     description: 'Show version information',
-    execute(ctx) {
+    execute(ctx, _rest) {
         const name = DYNDATA.packageJson?.name ?? app_name;
         const version = DYNDATA.packageJson?.version ?? 'unknown';
         const hash = DYNDATA.commithash ?? '';

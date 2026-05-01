@@ -32,6 +32,10 @@ export function getPreferencesPath(): string {
     return join(getAppDir(), 'preferences.json');
 }
 
+export function getProviderSettingsPath(): string {
+    return join(getAppDir(), 'providers.json');
+}
+
 function getVersionPath(): string {
     return join(getAppDir(), '._version');
 }

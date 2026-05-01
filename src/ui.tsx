@@ -15,3 +15,12 @@ export async function startApp(): Promise<void> {
     );
     await waitUntilExit();
 }
+
+export async function runOnboarding(onConfigure: () => void, onSkip: () => void): Promise<void> {
+    const Onboarding = (await import('./components/Onboarding.tsx')).default;
+    const { waitUntilExit } = render(<Onboarding onConfigure={onConfigure} onSkip={onSkip} />, {
+        alternateScreen: true,
+        exitOnCtrlC: false,
+    });
+    await waitUntilExit();
+}
