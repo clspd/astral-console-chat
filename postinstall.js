@@ -20,4 +20,6 @@ if (isDev && onlyAllowExists) {
   console.log('Good');
 }
 
-execSync('node prepare.mjs', execConfig);
+if (isDev) execSync('node prepare.mjs', execConfig);
+
+
