@@ -1,106 +1,93 @@
-import React, { useCallback } from 'react';
-import { Box, Text, useInput, useWindowSize } from 'ink';
-import { useConversation } from './state/useConversation.js';
-import { conversationStore } from './state/conversation.js';
-import { MessageRole, MessageStatus } from './types/conversation.js';
-import type { Message } from './types/conversation.js';
-import MessageList from './ui/MessageList.js';
-import InputBox from './ui/InputBox.js';
+import React, { useCallback, useState } from 'react';
+import { Box, Text, useWindowSize, useApp } from 'ink';
+import { useConversation } from '@/states/useConversation.ts';
+import { app_name } from '@/config.ts';
+import '@/commands/index.ts';
+import { getCommand } from '@/commands/registry.ts';
+import { useMessage } from '@/utils/message.tsx';
+import MessageList from '@/components/MessageList.tsx';
+import UserInput from '@/components/UserInput.tsx';
 
-let nextMessageId = 1;
+function extractCommandName(input: string): string {
+  const spaceIndex = input.indexOf(' ');
+  if (spaceIndex === -1) return input.slice(1);
+  return input.slice(1, spaceIndex);
+}
 
 export default function App() {
-  const { conversation, status, error, unsaved } = useConversation();
-  const { columns, rows } = useWindowSize();
+    const { conversation, status, error, unsaved } = useConversation();
+    const { columns, rows } = useWindowSize();
+    const [inputValue, setInputValue] = useState('');
+    const { exit } = useApp();
+    const message = useMessage();
 
-  const handleSubmit = useCallback((text: string) => {
-    if (!conversation) return;
+    const handleSubmit = useCallback(
+        (value: string) => {
+            const trimmed = value.trim();
+            if (trimmed.length === 0) return;
 
-    const now = Date.now();
-    const userMsg: Message = {
-      id: nextMessageId++,
-      parent_id: null,
-      role: MessageRole.User,
-      ts: now,
-      status: MessageStatus.Finished,
-      files: [],
-      fragments: [
-        {
-          id: 1,
-          type: 'text' as const,
-          ts: now,
-          contentType: 'text' as const,
-          content: text,
+            if (trimmed[0] === '/') {
+                const cmdName = extractCommandName(trimmed);
+                const cmd = getCommand(cmdName);
+                if (cmd) {
+                    cmd.execute({ exit });
+                    return;
+                }
+                message.error(`Unknown command: /${cmdName}`);
+                setInputValue('');
+                return;
+            }
+
+            setInputValue('');
         },
-      ],
-      has_pending_fragment: false,
-    };
-
-    const updatedConversation = {
-      ...conversation,
-      content: {
-        ...conversation.content,
-        content: [...conversation.content.content, userMsg],
-      },
-      stat: {
-        ...conversation.stat,
-        updated_at: now,
-      },
-    };
-
-    conversationStore.setState(s => ({
-      ...s,
-      conversation: updatedConversation,
-    }));
-  }, [conversation]);
-
-  if (status === 'loading') {
-    return (
-      <Box height={rows} paddingX={1} paddingY={1}>
-        <Text>Loading...</Text>
-      </Box>
+        [exit, message],
     );
-  }
 
-  if (status === 'error') {
+    if (status === 'loading') {
+        return (
+            <Box height={rows} paddingX={1} paddingY={1}>
+                <Text>Loading...</Text>
+            </Box>
+        );
+    }
+
+    if (status === 'error') {
+        return (
+            <Box height={rows} paddingX={1} paddingY={1} flexDirection="column">
+                <Text color="red">Error: {error}</Text>
+            </Box>
+        );
+    }
+
+    const sep = '─'.repeat(columns);
+
     return (
-      <Box height={rows} paddingX={1} paddingY={1} flexDirection="column">
-        <Text color="red">Error: {error}</Text>
-        <Text dimColor>Press ESC to exit</Text>
-      </Box>
+        <Box flexDirection="column" height={rows}>
+            <Box paddingX={1}>
+                <Text bold>
+                    {conversation?.name ?? app_name}
+                    {unsaved ? ' [unsaved]' : ''}
+                </Text>
+            </Box>
+
+            <Box>
+                <Text dimColor>{sep}</Text>
+            </Box>
+
+            <Box flexDirection="column" flexGrow={1} paddingX={1} overflow="visible">
+                <MessageList />
+            </Box>
+
+            <Box flexDirection="column">
+                <Box>
+                    <Text dimColor>{sep}</Text>
+                </Box>
+                <UserInput
+                    value={inputValue}
+                    onChange={setInputValue}
+                    onSubmit={handleSubmit}
+                />
+            </Box>
+        </Box>
     );
-  }
-
-  const sep = '─'.repeat(columns);
-
-  return (
-    <Box flexDirection="column" height={rows}>
-      {/* 标题栏 */}
-      <Box paddingX={1}>
-        <Text bold>
-          {conversation?.name ?? 'Astral Console Chat'}
-          {unsaved ? ' [unsaved]' : ''}
-        </Text>
-      </Box>
-
-      <Box>
-        <Text dimColor>{sep}</Text>
-      </Box>
-
-      {/* 消息列表 */}
-      <Box flexDirection="column" flexGrow={1} paddingX={1} overflow="hidden">
-        <MessageList />
-      </Box>
-
-      {/* 底部输入框 */}
-      <Box flexDirection="column">
-        <Box>
-          <Text dimColor>{sep}</Text>
-        </Box>
-        <Box paddingX={1} paddingBottom={1}>
-          <InputBox onSubmit={handleSubmit} />
-        </Box>
-      </Box>
-    </Box>
-  );
 }
