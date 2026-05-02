@@ -32,7 +32,7 @@ export default function ProviderSelect({ open, onClose }: ProviderSelectProps) {
             if (key.return && providers.length > 0) {
                 const p = providers[selectedIndex];
                 if (p) {
-                    setActiveProvider(p.id);
+                    void setActiveProvider(p.id);
                     onClose();
                 }
                 return;

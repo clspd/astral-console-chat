@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Text, useInput, useWindowSize } from 'ink';
 import { useModalActive } from '@/utils/modal.tsx';
 import CommandSuggestion from './CommandSuggestion.tsx';
+import { navigateUp, navigateDown } from '@/data/history.ts';
 
 interface UserInputProps {
     value: string;
@@ -192,7 +193,20 @@ function CustomTextInput({
 
             if (key.upArrow) {
                 if (suggestionActiveRef.current) return;
+
                 const lineStart = val.lastIndexOf('\n', cur - 1);
+                if (lineStart === -1) {
+                    const entry = navigateUp(val);
+                    if (entry !== null) {
+                        internalChangeRef.current = true;
+                        onChangeRef.current(entry);
+                        const newCur = codePointLen(entry);
+                        setCursorOffset(newCur);
+                        setScrollLine(ensureCursorVisible(newCur, entry, scrollRef.current, mh));
+                    }
+                    return;
+                }
+
                 const col = cur - (lineStart + 1);
                 const prevLineStart = val.lastIndexOf('\n', lineStart - 1);
                 const prevLineLen = lineStart - prevLineStart - 1;
@@ -204,15 +218,22 @@ function CustomTextInput({
 
             if (key.downArrow) {
                 if (suggestionActiveRef.current) return;
-                const lineStart = val.lastIndexOf('\n', cur - 1);
-                const col = cur - (lineStart + 1);
+
                 const nextLineEnd = val.indexOf('\n', cur);
                 if (nextLineEnd === -1) {
-                    const nc = codePointLen(val);
-                    setCursorOffset(nc);
-                    setScrollLine(ensureCursorVisible(nc, val, scrollRef.current, mh));
+                    const entry = navigateDown();
+                    if (entry !== null) {
+                        internalChangeRef.current = true;
+                        onChangeRef.current(entry);
+                        const newCur = codePointLen(entry);
+                        setCursorOffset(newCur);
+                        setScrollLine(ensureCursorVisible(newCur, entry, scrollRef.current, mh));
+                    }
                     return;
                 }
+
+                const lineStart = val.lastIndexOf('\n', cur - 1);
+                const col = cur - (lineStart + 1);
                 const nextNextNewline = val.indexOf('\n', nextLineEnd + 1);
                 const nextLineLen =
                     nextNextNewline === -1
@@ -322,7 +343,7 @@ function RenderLineWithCursor({ line, cursorCol }: { line: string; cursorCol: nu
                 }
                 return <Text key={i}>{ch}</Text>;
             })}
-            {cursorCol >= chars.length && <Text backgroundColor="cyan"> </Text>}
+            {cursorCol >= chars.length && <Text key={chars.length} backgroundColor="cyan"> </Text>}
         </Text>
     );
 }

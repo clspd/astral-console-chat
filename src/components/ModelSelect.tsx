@@ -35,7 +35,7 @@ export default function ModelSelect({ open, onClose }: ModelSelectProps) {
             if (key.return && models.length > 0) {
                 const m = models[selectedIndex];
                 if (m) {
-                    setActiveModel(m.name);
+                    void setActiveModel(m.name);
                     onClose();
                 }
                 return;
@@ -69,7 +69,7 @@ export default function ModelSelect({ open, onClose }: ModelSelectProps) {
                     models.map((m, i) => {
                         const isSel = i === selectedIndex;
                         return (
-                            <Box key={m.name}>
+                            <Box key={`${m.name}-${i}`}>
                                 <Text {...(isSel ? { color: 'cyan' } : {})}>
                                     {isSel ? '> ' : '  '}
                                     {m.display_name} ({m.name})

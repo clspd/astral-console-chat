@@ -5,6 +5,7 @@ export interface ConversationState {
     rawInput: string | null;
     currentConversationPath: string | null;
     unsaved: boolean;
+    generating: boolean;
     conversation: Conversation | null;
     status: 'empty' | 'loading' | 'ready' | 'error';
     error: string | null;
@@ -18,6 +19,7 @@ export const conversationStore = createStore({
             rawInput: null,
             currentConversationPath: null,
             unsaved: false,
+            generating: false,
             conversation: null,
             status: 'empty',
             error: null,

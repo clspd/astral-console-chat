@@ -1,25 +1,25 @@
-import type { Command, CommandContext } from '../types.ts';
+import type { Command, AppContext } from '../types.ts';
 import { setActiveModel } from '@/providers/store.ts';
 
 export const modelCommand: Command = {
     name: 'model',
-    description: 'Switch AI model (/model [name])',
-    execute(ctx: CommandContext, rest: string) {
+    description: 'Switch AI model',
+    description2: '[name]',
+    async execute(ctx: AppContext, rest: string) {
         const name = rest.trim();
 
         if (!name) {
-            ctx.showModelSelect?.();
+            ctx.showModelSelect();
             return;
         }
 
-        const success = setActiveModel(name);
+        const success = await setActiveModel(name);
         if (success) {
-            ctx.showAlert({ title: 'Model Changed', description: `Switched to model "${name}"` });
+            ctx.message.success(`Switched to model "${name}"`);
         } else {
-            ctx.showAlert({
-                title: 'Model Not Found',
-                description: `Model "${name}" not found in current provider. Use /setup to configure models.`,
-            });
+            ctx.message.warning(
+                `Model "${name}" not found in current provider. Use /setup to configure models.`,
+            );
         }
     },
 };

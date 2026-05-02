@@ -3,6 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { getProviderSettingsPath } from '@/data/dirs.ts';
 import { exists } from '@/utils/fsutil.ts';
 import { createStore } from '@/states/store.ts';
+import { putSettings, getSettings, deleteSettings } from '@/settings/index.ts';
 import type { ProviderConfig, ModelConfig, ProviderSettingsFile } from '@/types/provider.ts';
 
 export interface ProviderState {
@@ -35,6 +36,22 @@ export async function initProviders(): Promise<void> {
     } else {
         providerStore.patch({ initialized: true });
     }
+
+    const savedId = await getSettings<string | null>('provider.activeId');
+    if (savedId && getProviderById(savedId)) {
+        const prov = getProviderById(savedId)!;
+        const savedModel = await getSettings<string | null>('provider.activeModel');
+        const modelName =
+            savedModel && prov.models.some((m) => m.name === savedModel)
+                ? savedModel
+                : prov.models.length > 0
+                  ? prov.models[0]!.name
+                  : null;
+        providerStore.patch({
+            activeProviderId: savedId,
+            activeModelName: modelName,
+        });
+    }
 }
 
 export async function saveProviders(): Promise<void> {
@@ -45,7 +62,7 @@ export async function saveProviders(): Promise<void> {
     await writeFile(getProviderSettingsPath(), JSON.stringify(file, null, 2), 'utf-8');
 }
 
-export function addProvider(name: string, base_url: string, api_key: string): string {
+export async function addProvider(name: string, base_url: string, api_key: string): Promise<string> {
     const id = randomUUID();
     const provider: ProviderConfig = {
         id,
@@ -58,14 +75,14 @@ export function addProvider(name: string, base_url: string, api_key: string): st
     providerStore.patch({
         providers: [...providerStore.providers, provider],
     });
-    void saveProviders();
+    await saveProviders();
     return id;
 }
 
-export function updateProvider(
+export async function updateProvider(
     id: string,
     data: { name?: string; base_url?: string; api_key?: string },
-): boolean {
+): Promise<boolean> {
     let found = false;
     const updated = providerStore.providers.map((p) => {
         if (p.id === id) {
@@ -76,12 +93,12 @@ export function updateProvider(
     });
     if (found) {
         providerStore.patch({ providers: updated });
-        void saveProviders();
+        await saveProviders();
     }
     return found;
 }
 
-export function deleteProvider(id: string): boolean {
+export async function deleteProvider(id: string): Promise<boolean> {
     let found = false;
     const filtered = providerStore.providers.filter((p) => {
         if (p.id === id) {
@@ -91,14 +108,17 @@ export function deleteProvider(id: string): boolean {
         return true;
     });
     if (found) {
+        const wasActive = providerStore.activeProviderId === id;
         providerStore.patch({
             providers: filtered,
-            activeProviderId:
-                providerStore.activeProviderId === id ? null : providerStore.activeProviderId,
-            activeModelName:
-                providerStore.activeProviderId === id ? null : providerStore.activeModelName,
+            activeProviderId: wasActive ? null : providerStore.activeProviderId,
+            activeModelName: wasActive ? null : providerStore.activeModelName,
         });
-        void saveProviders();
+        await saveProviders();
+        if (wasActive) {
+            await deleteSettings('provider.activeId');
+            await deleteSettings('provider.activeModel');
+        }
     }
     return found;
 }
@@ -116,31 +136,35 @@ export function getActiveProvider(): ProviderConfig | undefined {
     return providerStore.providers.find((p) => p.id === providerStore.activeProviderId);
 }
 
-export function setActiveProvider(id: string | null): void {
+export async function setActiveProvider(id: string | null): Promise<void> {
     const provider = id ? getProviderById(id) : undefined;
+    const modelName = provider && provider.models.length > 0 ? provider.models[0]!.name : null;
     providerStore.patch({
         activeProviderId: id,
-        activeModelName: provider && provider.models.length > 0 ? provider.models[0]!.name : null,
+        activeModelName: modelName,
     });
+    await putSettings('provider.activeId', id);
+    await putSettings('provider.activeModel', modelName);
 }
 
-export function setActiveProviderByName(name: string): boolean {
+export async function setActiveProviderByName(name: string): Promise<boolean> {
     const provider = getProviderByName(name);
     if (!provider) return false;
-    setActiveProvider(provider.id);
+    await setActiveProvider(provider.id);
     return true;
 }
 
-export function setActiveModel(modelName: string): boolean {
+export async function setActiveModel(modelName: string): Promise<boolean> {
     const provider = getActiveProvider();
     if (!provider) return false;
     const model = provider.models.find((m) => m.name === modelName);
     if (!model) return false;
     providerStore.patch({ activeModelName: modelName });
+    await putSettings('provider.activeModel', modelName);
     return true;
 }
 
-export function addModel(providerId: string, model: ModelConfig): boolean {
+export async function addModel(providerId: string, model: ModelConfig): Promise<boolean> {
     let found = false;
     const updated = providerStore.providers.map((p) => {
         if (p.id === providerId) {
@@ -152,16 +176,16 @@ export function addModel(providerId: string, model: ModelConfig): boolean {
     });
     if (found) {
         providerStore.patch({ providers: updated });
-        void saveProviders();
+        await saveProviders();
     }
     return found;
 }
 
-export function updateModel(
+export async function updateModel(
     providerId: string,
     modelName: string,
     data: Partial<Omit<ModelConfig, 'name'>>,
-): boolean {
+): Promise<boolean> {
     let found = false;
     const updated = providerStore.providers.map((p) => {
         if (p.id === providerId) {
@@ -175,12 +199,12 @@ export function updateModel(
     });
     if (found) {
         providerStore.patch({ providers: updated });
-        void saveProviders();
+        await saveProviders();
     }
     return found;
 }
 
-export function deleteModel(providerId: string, modelName: string): boolean {
+export async function deleteModel(providerId: string, modelName: string): Promise<boolean> {
     let found = false;
     const updated = providerStore.providers.map((p) => {
         if (p.id === providerId) {
@@ -196,20 +220,25 @@ export function deleteModel(providerId: string, modelName: string): boolean {
         return p;
     });
     if (found) {
+        const wasActive =
+            providerStore.activeModelName === modelName &&
+            providerStore.activeProviderId === providerId;
         providerStore.patch({
             providers: updated,
-            activeModelName:
-                providerStore.activeModelName === modelName &&
-                providerStore.activeProviderId === providerId
-                    ? null
-                    : providerStore.activeModelName,
+            activeModelName: wasActive ? null : providerStore.activeModelName,
         });
-        void saveProviders();
+        await saveProviders();
+        if (wasActive) {
+            await deleteSettings('provider.activeModel');
+        }
     }
     return found;
 }
 
-export function setModelsForProvider(providerId: string, models: ModelConfig[]): boolean {
+export async function setModelsForProvider(
+    providerId: string,
+    models: ModelConfig[],
+): Promise<boolean> {
     let found = false;
     const updated = providerStore.providers.map((p) => {
         if (p.id === providerId) {
@@ -220,7 +249,7 @@ export function setModelsForProvider(providerId: string, models: ModelConfig[]):
     });
     if (found) {
         providerStore.patch({ providers: updated });
-        void saveProviders();
+        await saveProviders();
     }
     return found;
 }

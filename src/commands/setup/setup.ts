@@ -1,9 +1,9 @@
-import type { Command, CommandContext } from '../types.ts';
+import type { Command, AppContext } from '../types.ts';
 
 export const setupCommand: Command = {
     name: 'setup',
     description: 'Open provider configuration',
-    execute(ctx: CommandContext) {
-        ctx.showConfig?.();
+    execute(ctx: AppContext) {
+        ctx.showConfig();
     },
 };

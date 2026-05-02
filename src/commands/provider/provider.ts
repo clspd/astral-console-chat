@@ -1,28 +1,25 @@
-import type { Command, CommandContext } from '../types.ts';
+import type { Command, AppContext } from '../types.ts';
 import { setActiveProviderByName } from '@/providers/store.ts';
 
 export const providerCommand: Command = {
     name: 'provider',
-    description: 'Switch AI provider (/provider [name])',
-    execute(ctx: CommandContext, rest: string) {
+    description: 'Switch AI provider',
+    description2: '[name]',
+    async execute(ctx: AppContext, rest: string) {
         const name = rest.trim();
 
         if (!name) {
-            ctx.showProviderSelect?.();
+            ctx.showProviderSelect();
             return;
         }
 
-        const success = setActiveProviderByName(name);
+        const success = await setActiveProviderByName(name);
         if (success) {
-            ctx.showAlert({
-                title: 'Provider Changed',
-                description: `Switched to provider "${name}"`,
-            });
+            ctx.message.success(`Switched to provider "${name}"`);
         } else {
-            ctx.showAlert({
-                title: 'Provider Not Found',
-                description: `Provider "${name}" not found. Use /setup to configure providers.`,
-            });
+            ctx.message.warning(
+                `Provider "${name}" not found. Use /setup to configure providers.`,
+            );
         }
     },
 };

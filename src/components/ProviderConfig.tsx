@@ -87,10 +87,10 @@ export default function ProviderConfig({ open, onClose }: ProviderConfigProps) {
         if (parsed !== undefined && !isNaN(parsed)) model.max_tokens = parsed;
 
         if (editingModel && editingModel.name !== n) {
-            deleteModel(selectedProviderId, editingModel.name);
+            void deleteModel(selectedProviderId, editingModel.name);
         }
 
-        addModel(selectedProviderId, model);
+        void addModel(selectedProviderId, model);
         showMessage('Model saved');
         setView('modelList');
         setModelSelIndex(0);
@@ -108,7 +108,7 @@ export default function ProviderConfig({ open, onClose }: ProviderConfigProps) {
         if (selectedProvider.models.length === 0) return;
         const model = selectedProvider.models[modelSelIndex];
         if (!model) return;
-        deleteModel(selectedProviderId, model.name);
+        void deleteModel(selectedProviderId, model.name);
         showMessage('Model deleted');
         setModelSelIndex(Math.max(0, modelSelIndex - 1));
     }, [selectedProviderId, selectedProvider, modelSelIndex, showMessage]);
@@ -129,7 +129,7 @@ export default function ProviderConfig({ open, onClose }: ProviderConfigProps) {
             const data = (await resp.json()) as { data?: Array<{ id: string }> };
             const list = data.data ?? [];
             const models: ModelConfig[] = list.map((m) => ({ name: m.id, display_name: m.id }));
-            setModelsForProvider(selectedProviderId, models);
+            await setModelsForProvider(selectedProviderId, models);
             showMessage(`Fetched ${models.length} models`);
         } catch (err) {
             showMessage(`Failed: ${err instanceof Error ? err.message : String(err)}`);
@@ -147,10 +147,10 @@ export default function ProviderConfig({ open, onClose }: ProviderConfigProps) {
             return;
         }
         if (editingProviderId) {
-            updateProvider(editingProviderId, { name: n, base_url: u, api_key: k });
+            void updateProvider(editingProviderId, { name: n, base_url: u, api_key: k });
             showMessage('Provider updated');
         } else {
-            addProvider(n, u, k);
+            void addProvider(n, u, k);
             showMessage('Provider added');
         }
         setEditingProviderId(null);
@@ -231,10 +231,10 @@ export default function ProviderConfig({ open, onClose }: ProviderConfigProps) {
                     setView('providerForm');
                     return;
                 }
-                if (key.delete && providers.length > 0) {
+                if (input === 'd' && providers.length > 0) {
                     const p = providers[selectedIndex];
                     if (p) {
-                        deleteProvider(p.id);
+                        void deleteProvider(p.id);
                         showMessage('Provider deleted');
                         setSelectedIndex(Math.max(0, selectedIndex - 1));
                     }
@@ -290,11 +290,11 @@ export default function ProviderConfig({ open, onClose }: ProviderConfigProps) {
                     enterModelForm(null);
                     return;
                 }
-                if (key.delete && models.length > 0) {
+                if (input === 'd' && models.length > 0) {
                     handleDeleteModel();
                     return;
                 }
-                if (key.ctrl && input === 'f') {
+                if (input === 'f') {
                     void handleAutoFetch();
                     return;
                 }
@@ -356,7 +356,7 @@ export default function ProviderConfig({ open, onClose }: ProviderConfigProps) {
                         )}
                         <Box marginTop={1} flexDirection="column">
                             <Text dimColor>
-                                [a] Add [e] Edit [Delete] Delete [Enter] Manage Models [Esc] Close
+                                [a] Add [e] Edit [d] Delete [Enter] Manage Models [Esc] Close
                             </Text>
                         </Box>
                     </Box>
@@ -414,12 +414,12 @@ export default function ProviderConfig({ open, onClose }: ProviderConfigProps) {
                         {selectedProvider.models.length === 0 ? (
                             <Box marginBottom={1}>
                                 <Text dimColor>
-                                    No models. Press 'a' to add or Ctrl+F to auto-fetch.
+                                    No models. Press 'a' to add or 'f' to auto-fetch.
                                 </Text>
                             </Box>
                         ) : (
                             selectedProvider.models.map((m, i) => (
-                                <Box key={m.name}>
+                                <Box key={`${m.name}-${i}`}>
                                     <Text {...(i === modelSelIndex ? { color: 'cyan' } : {})}>
                                         {i === modelSelIndex ? '> ' : '  '}
                                         {m.display_name} ({m.name})
@@ -430,7 +430,7 @@ export default function ProviderConfig({ open, onClose }: ProviderConfigProps) {
                         )}
                         <Box marginTop={1} flexDirection="column">
                             <Text dimColor>
-                                [a] Add [Enter] Edit [Delete] Delete [Ctrl+F] Auto Fetch [Esc] Back
+                                [a] Add [Enter] Edit [d] Delete [f] Auto Fetch [Esc] Back
                             </Text>
                             {fetchingModels ? <Text color="yellow">Fetching models...</Text> : null}
                         </Box>

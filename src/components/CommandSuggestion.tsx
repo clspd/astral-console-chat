@@ -121,7 +121,8 @@ export default function CommandSuggestion({
         return (
             <Box paddingX={1}>
                 <Text dimColor>
-                    /{matchedCommand.name} - {matchedCommand.description}
+                    /{matchedCommand.name}{' '}
+                    {matchedCommand.description2 ?? matchedCommand.description}
                 </Text>
             </Box>
         );
@@ -145,7 +146,7 @@ export default function CommandSuggestion({
                 return (
                     <Box key={cmd.name}>
                         {isSelected ? (
-                            <Text color="cyan" inverse>
+                            <Text color="cyan" bold>
                                 {'  /' + cmd.name}
                             </Text>
                         ) : (

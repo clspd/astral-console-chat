@@ -137,6 +137,7 @@ export function Modal({
                 borderStyle="round"
                 paddingX={2}
                 paddingY={1}
+                backgroundColor="#000000"
                 {...panelProps}
             >
                 {title ? (

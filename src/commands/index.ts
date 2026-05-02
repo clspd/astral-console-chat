@@ -6,6 +6,8 @@ import { aboutCommand } from './about/about.ts';
 import { setupCommand } from './setup/setup.ts';
 import { providerCommand } from './provider/provider.ts';
 import { modelCommand } from './model/model.ts';
+import { renameCommand } from './rename/rename.ts';
+import { settingsCommand } from './settings/settings.ts';
 
 registerCommand(exitCommand);
 registerCommand(versionCommand);
@@ -14,3 +16,5 @@ registerCommand(aboutCommand);
 registerCommand(setupCommand);
 registerCommand(providerCommand);
 registerCommand(modelCommand);
+registerCommand(renameCommand);
+registerCommand(settingsCommand);

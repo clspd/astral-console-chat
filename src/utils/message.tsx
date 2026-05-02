@@ -55,25 +55,31 @@ function clampText(value: unknown): string {
 function MessageRow({ item }: { item: MessageItem }) {
     const icon = getIcon(item.type);
 
+    const bgColor =
+        item.type === 'error' ? '#5f0000'
+        : item.type === 'warning' ? '#5f5f00'
+        : item.type === 'success' ? '#005f00'
+        : '#005f5f';
+
+    const content =
+        typeof item.content === 'string' ||
+        typeof item.content === 'number' ||
+        typeof item.content === 'boolean'
+            ? clampText(item.content)
+            : item.content;
+
     return (
-        <Box marginBottom={1} justifyContent="center" width="100%">
-            <Box
-                borderStyle="round"
-                paddingX={1}
-                paddingY={0}
-                flexDirection="row"
-                alignItems="center"
-            >
-                <Text bold>{icon}</Text>
-                <Text> </Text>
-                <Text>
-                    {typeof item.content === 'string' ||
-                    typeof item.content === 'number' ||
-                    typeof item.content === 'boolean'
-                        ? clampText(item.content)
-                        : item.content}
-                </Text>
-            </Box>
+        <Box
+            width="100%"
+            paddingX={1}
+            paddingY={0}
+            marginBottom={1}
+            flexDirection="row"
+            backgroundColor={bgColor}
+        >
+            <Text bold>{icon}</Text>
+            <Text> </Text>
+            <Text>{content}</Text>
         </Box>
     );
 }
@@ -170,15 +176,20 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
     return (
         <MessageContext.Provider value={api}>
             <Box flexDirection="column" width={columns}>
-                <Box flexDirection="column" width="100%" paddingX={1} paddingTop={1}>
-                    {messages.map((item) => (
-                        <MessageRow key={item.id} item={item} />
-                    ))}
-                </Box>
-
-                <Box flexDirection="column" flexGrow={1} width="100%">
-                    {children}
-                </Box>
+                {children}
+                {messages.length > 0 ? (
+                    <Box
+                        position="absolute"
+                        top={0}
+                        left={0}
+                        width={columns}
+                        flexDirection="column"
+                    >
+                        {messages.map((item) => (
+                            <MessageRow key={item.id} item={item} />
+                        ))}
+                    </Box>
+                ) : null}
             </Box>
         </MessageContext.Provider>
     );

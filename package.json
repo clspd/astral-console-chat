@@ -53,6 +53,7 @@
   },
   "packageManager": "pnpm",
   "dependencies": {
+    "@ai-sdk/openai-compatible": "^2.0.45",
     "ai": "~6.0.174",
     "ink": "~7.0.1",
     "ink-text-input": "~6.0.0",

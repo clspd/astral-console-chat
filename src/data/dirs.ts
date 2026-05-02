@@ -36,6 +36,10 @@ export function getProviderSettingsPath(): string {
     return join(getAppDir(), 'providers.json');
 }
 
+export function getHistoryPath(): string {
+    return join(getAppDir(), 'history.jsonl');
+}
+
 function getVersionPath(): string {
     return join(getAppDir(), '._version');
 }

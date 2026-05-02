@@ -12,9 +12,11 @@ import ProviderConfig from '@/components/ProviderConfig.tsx';
 import ProviderSelect from '@/components/ProviderSelect.tsx';
 import ModelSelect from '@/components/ModelSelect.tsx';
 import { shouldOpenConfigOnStart } from './main.tsx';
+import { addHistory, endNavigation } from '@/data/history.ts';
+import { sendMessage } from '@/chat/send.ts';
 
 export default function App() {
-    const { conversation, status, error, unsaved } = useConversation();
+    const { conversation, status, error, unsaved, generating } = useConversation();
     const { columns, rows } = useWindowSize();
     const [inputValue, setInputValue] = useState('');
     const { exit } = useApp();
@@ -49,13 +51,21 @@ export default function App() {
 
     const handleSubmit = useCallback(
         (value: string) => {
-            setInputValue('');
-            if (value[0] === '/') {
-                executeCommand(value);
+            if (generating) return;
+            if (value.trim() === '') {
+                setInputValue('');
                 return;
             }
+            addHistory(value);
+            endNavigation();
+            setInputValue('');
+            if (value[0] === '/') {
+                void executeCommand(value);
+                return;
+            }
+            void sendMessage(value);
         },
-        [executeCommand],
+        [executeCommand, generating],
     );
 
     if (status === 'loading') {
@@ -75,6 +85,8 @@ export default function App() {
     }
 
     const sep = '─'.repeat(columns);
+    const maxInputHeight = Math.max(1, Math.floor(rows / 2) - 1);
+    const msgHeight = Math.max(3, rows - 4 - maxInputHeight - 1);
 
     return (
         <Box flexDirection="column" height={rows}>
@@ -89,11 +101,11 @@ export default function App() {
                 <Text dimColor>{sep}</Text>
             </Box>
 
-            <Box flexDirection="column" flexGrow={1} paddingX={1} overflow="visible">
-                <MessageList />
+            <Box paddingX={1} height={msgHeight} overflow="hidden">
+                <MessageList columns={columns} viewportHeight={msgHeight} />
             </Box>
 
-            <Box flexDirection="column">
+            <Box flexDirection="column" flexShrink={0}>
                 <Box>
                     <Text dimColor>{sep}</Text>
                 </Box>

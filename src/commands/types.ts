@@ -1,13 +1,18 @@
-export interface CommandContext {
+export interface AppContext {
     exit: () => void;
     showAlert: (props: { title: string; description?: string }) => void;
-    showConfig?: () => void;
-    showProviderSelect?: () => void;
-    showModelSelect?: () => void;
+    message: {
+        success: (content: string, duration?: number) => void;
+        warning: (content: string, duration?: number) => void;
+    };
+    showConfig: () => void;
+    showProviderSelect: () => void;
+    showModelSelect: () => void;
 }
 
 export interface Command {
     name: string;
     description: string;
-    execute: (ctx: CommandContext, rest: string) => void;
+    description2?: string;
+    execute: (ctx: AppContext, rest: string) => void | Promise<void>;
 }
