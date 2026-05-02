@@ -17,9 +17,7 @@ export const providerCommand: Command = {
         if (success) {
             ctx.message.success(`Switched to provider "${name}"`);
         } else {
-            ctx.message.warning(
-                `Provider "${name}" not found. Use /setup to configure providers.`,
-            );
+            ctx.message.warning(`Provider "${name}" not found. Use /setup to configure providers.`);
         }
     },
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { useConversation } from '@/states/useConversation.ts';
 import { MessageRole, MessageStatus } from '@/types/conversation.js';
@@ -21,14 +21,20 @@ export default function MessageList({ columns, viewportHeight }: Props) {
     const messages = conversation?.content.content ?? [];
     const [scrollOffset, setScrollOffset] = useState(0);
     const [started, setStarted] = useState(false);
+    const wasAtBottomRef = useRef(true);
+    const prevMaxScrollRef = useRef(0);
 
     const { msgHeights, totalLines, maxScroll } = useMemo(() => {
         const h: number[] = [];
         for (const msg of messages) {
             const label =
-                msg.role === MessageRole.User ? 'You' :
-                msg.role === MessageRole.Assistant ? 'Assistant' :
-                msg.role === MessageRole.System ? 'System' : msg.role;
+                msg.role === MessageRole.User
+                    ? 'You'
+                    : msg.role === MessageRole.Assistant
+                      ? 'Assistant'
+                      : msg.role === MessageRole.System
+                        ? 'System'
+                        : msg.role;
             const text = msg.fragments
                 .filter((f) => f.type === 'text')
                 .map((f) => f.content)
@@ -45,12 +51,21 @@ export default function MessageList({ columns, viewportHeight }: Props) {
 
     const clampedOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
 
+    wasAtBottomRef.current = scrollOffset >= maxScroll;
+
     useEffect(() => {
-        if (messages.length > 0 && (!started || generating)) {
+        if (messages.length > 0 && (!started || (generating && wasAtBottomRef.current))) {
             setScrollOffset(maxScroll);
         }
         if (messages.length > 0) setStarted(true);
     }, [messages.length, generating, maxScroll, started]);
+
+    useEffect(() => {
+        if (scrollOffset >= prevMaxScrollRef.current && maxScroll > prevMaxScrollRef.current) {
+            setScrollOffset(maxScroll);
+        }
+        prevMaxScrollRef.current = maxScroll;
+    }, [maxScroll, scrollOffset]);
 
     useEffect(() => {
         if (scrollOffset > maxScroll) setScrollOffset(maxScroll);
@@ -73,11 +88,7 @@ export default function MessageList({ columns, viewportHeight }: Props) {
 
     useInput(
         (_input, key) => {
-            if (key.upArrow) {
-                setScrollOffset((p) => Math.max(0, p - 1));
-            } else if (key.downArrow) {
-                setScrollOffset((p) => Math.min(maxScroll, p + 1));
-            } else if (key.pageUp) {
+            if (key.pageUp) {
                 setScrollOffset((p) => Math.max(0, p - viewportHeight));
             } else if (key.pageDown) {
                 setScrollOffset((p) => Math.min(maxScroll, p + viewportHeight));
@@ -95,13 +106,16 @@ export default function MessageList({ columns, viewportHeight }: Props) {
     }
 
     const roleLabel = (r: MessageRole) =>
-        r === MessageRole.User ? 'You' :
-        r === MessageRole.Assistant ? 'Assistant' :
-        r === MessageRole.System ? 'System' : r;
+        r === MessageRole.User
+            ? 'You'
+            : r === MessageRole.Assistant
+              ? 'Assistant'
+              : r === MessageRole.System
+                ? 'System'
+                : r;
 
     const roleColor = (r: MessageRole) =>
-        r === MessageRole.User ? 'cyan' :
-        r === MessageRole.Assistant ? 'green' : 'yellow';
+        r === MessageRole.User ? 'cyan' : r === MessageRole.Assistant ? 'green' : 'yellow';
 
     return (
         <Box flexDirection="column" height={viewportHeight} overflow="hidden">

@@ -8,6 +8,7 @@ interface UserInputProps {
     value: string;
     onChange: (value: string) => void;
     onSubmit: (value: string) => void;
+    onHeightChange?: (height: number) => void;
 }
 
 function codePointLen(str: string): number {
@@ -343,15 +344,28 @@ function RenderLineWithCursor({ line, cursorCol }: { line: string; cursorCol: nu
                 }
                 return <Text key={i}>{ch}</Text>;
             })}
-            {cursorCol >= chars.length && <Text key={chars.length} backgroundColor="cyan"> </Text>}
+            {cursorCol >= chars.length && (
+                <Text key={chars.length} backgroundColor="cyan">
+                    {' '}
+                </Text>
+            )}
         </Text>
     );
 }
 
-export default function UserInput({ value, onChange, onSubmit }: UserInputProps) {
+export default function UserInput({ value, onChange, onSubmit, onHeightChange }: UserInputProps) {
     const { rows } = useWindowSize();
     const maxInputHeight = Math.max(1, Math.floor(rows / 2) - 1);
     const [suggestionActive, setSuggestionActive] = useState(false);
+    const [suggestionHeight, setSuggestionHeight] = useState(0);
+
+    const inputLines = value.split('\n').length;
+    const actualInputHeight = Math.min(inputLines, maxInputHeight);
+    const totalHeight = suggestionHeight + actualInputHeight;
+
+    useEffect(() => {
+        onHeightChange?.(totalHeight);
+    }, [totalHeight, onHeightChange]);
 
     const handleAutocomplete = useCallback(
         (newValue: string) => {
@@ -375,6 +389,7 @@ export default function UserInput({ value, onChange, onSubmit }: UserInputProps)
                 onAutocomplete={handleAutocomplete}
                 onActiveChange={setSuggestionActive}
                 onExecute={handleExecute}
+                onHeightChange={setSuggestionHeight}
             />
             <Box paddingX={1}>
                 <Text color="cyan" bold>

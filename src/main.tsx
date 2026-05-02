@@ -1,6 +1,7 @@
 import { parseCliArgs } from './cli/parse.js';
 import { init } from './init.js';
-import { startApp, runOnboarding } from './ui.tsx';
+import { startApp } from './ui.tsx';
+import { runOnboarding } from './app/onboarding.tsx';
 import { getSettings, putSettings } from '@/settings/index.ts';
 
 let _openConfigOnStart = false;

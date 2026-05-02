@@ -19,7 +19,9 @@ export async function loadHistory(): Promise<void> {
         try {
             const obj = JSON.parse(trimmed) as { content: string };
             if (obj.content) history.push(obj.content);
-        } catch { /* skip malformed lines */ }
+        } catch {
+            /* skip malformed lines */
+        }
     }
 }
 

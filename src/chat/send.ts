@@ -30,7 +30,11 @@ function nextId(): number {
     return _nextId++;
 }
 
-function createMessage(role: MessageRole, status: MessageStatus, parentId: number | null = null): Message {
+function createMessage(
+    role: MessageRole,
+    status: MessageStatus,
+    parentId: number | null = null,
+): Message {
     return {
         id: nextId(),
         parent_id: parentId,
@@ -65,9 +69,13 @@ function buildMessages(conversation: Conversation, newUserInput: string) {
         if (!text) continue;
 
         const role =
-            msg.role === MessageRole.User ? 'user' :
-            msg.role === MessageRole.Assistant ? 'assistant' :
-            msg.role === MessageRole.System ? 'system' : 'user';
+            msg.role === MessageRole.User
+                ? 'user'
+                : msg.role === MessageRole.Assistant
+                  ? 'assistant'
+                  : msg.role === MessageRole.System
+                    ? 'system'
+                    : 'user';
 
         messages.push({ role: role as 'system' | 'user' | 'assistant', content: text });
     }
@@ -100,9 +108,9 @@ export async function sendMessage(userInput: string): Promise<void> {
     const model = getLanguageModel();
     if (!model) {
         const errMsg = createMessage(MessageRole.Assistant, MessageStatus.Error);
-        errMsg.fragments.push(textFragment(
-            'No AI provider configured. Use /setup to add a provider.',
-        ));
+        errMsg.fragments.push(
+            textFragment('No AI provider configured. Use /setup to add a provider.'),
+        );
         conversation.content.content.push(errMsg);
         await saveConversation(currentConversationPath, conversation);
         conversationStore.patch({ unsaved: false });

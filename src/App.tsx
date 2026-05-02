@@ -24,6 +24,7 @@ export default function App() {
     const [configOpen, setConfigOpen] = useState(false);
     const [providerSelectOpen, setProviderSelectOpen] = useState(false);
     const [modelSelectOpen, setModelSelectOpen] = useState(false);
+    const [userInputHeight, setUserInputHeight] = useState(3);
 
     useEffect(() => {
         if (shouldOpenConfigOnStart()) {
@@ -85,8 +86,7 @@ export default function App() {
     }
 
     const sep = '─'.repeat(columns);
-    const maxInputHeight = Math.max(1, Math.floor(rows / 2) - 1);
-    const msgHeight = Math.max(3, rows - 4 - maxInputHeight - 1);
+    const msgHeight = Math.max(3, rows - 3 - userInputHeight);
 
     return (
         <Box flexDirection="column" height={rows}>
@@ -109,7 +109,7 @@ export default function App() {
                 <Box>
                     <Text dimColor>{sep}</Text>
                 </Box>
-                <UserInput value={inputValue} onChange={setInputValue} onSubmit={handleSubmit} />
+                <UserInput value={inputValue} onChange={setInputValue} onSubmit={handleSubmit} onHeightChange={setUserInputHeight} />
             </Box>
 
             <AlertDialog

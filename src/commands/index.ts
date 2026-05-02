@@ -8,6 +8,7 @@ import { providerCommand } from './provider/provider.ts';
 import { modelCommand } from './model/model.ts';
 import { renameCommand } from './rename/rename.ts';
 import { settingsCommand } from './settings/settings.ts';
+import testErrorCommand from './test-error/test-error.ts';
 
 registerCommand(exitCommand);
 registerCommand(versionCommand);
@@ -18,3 +19,4 @@ registerCommand(providerCommand);
 registerCommand(modelCommand);
 registerCommand(renameCommand);
 registerCommand(settingsCommand);
+registerCommand(testErrorCommand);

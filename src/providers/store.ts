@@ -62,7 +62,11 @@ export async function saveProviders(): Promise<void> {
     await writeFile(getProviderSettingsPath(), JSON.stringify(file, null, 2), 'utf-8');
 }
 
-export async function addProvider(name: string, base_url: string, api_key: string): Promise<string> {
+export async function addProvider(
+    name: string,
+    base_url: string,
+    api_key: string,
+): Promise<string> {
     const id = randomUUID();
     const provider: ProviderConfig = {
         id,

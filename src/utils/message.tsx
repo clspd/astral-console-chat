@@ -56,10 +56,13 @@ function MessageRow({ item }: { item: MessageItem }) {
     const icon = getIcon(item.type);
 
     const bgColor =
-        item.type === 'error' ? '#5f0000'
-        : item.type === 'warning' ? '#5f5f00'
-        : item.type === 'success' ? '#005f00'
-        : '#005f5f';
+        item.type === 'error'
+            ? '#5f0000'
+            : item.type === 'warning'
+              ? '#5f5f00'
+              : item.type === 'success'
+                ? '#005f00'
+                : '#005f5f';
 
     const content =
         typeof item.content === 'string' ||

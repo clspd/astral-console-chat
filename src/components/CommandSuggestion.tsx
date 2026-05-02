@@ -11,6 +11,7 @@ interface CommandSuggestionProps {
     onAutocomplete: (value: string) => void;
     onActiveChange?: (active: boolean) => void;
     onExecute?: (commandText: string) => void;
+    onHeightChange?: (height: number) => void;
 }
 
 export default function CommandSuggestion({
@@ -18,6 +19,7 @@ export default function CommandSuggestion({
     onAutocomplete,
     onActiveChange,
     onExecute,
+    onHeightChange,
 }: CommandSuggestionProps) {
     const isCommandMode = input.length > 0 && input[0] === '/';
     const hasSpace = input.indexOf(' ') !== -1;
@@ -57,6 +59,19 @@ export default function CommandSuggestion({
             setScrollOffset(0);
         }
     }, [matches.length, selectedIndex]);
+
+    const currentHeight = useMemo(() => {
+        if (hasSpace && matchedCommand) return 1;
+        if (hasSpace && !matchedCommand) return 0;
+        if (matches.length === 0) return 0;
+        const visibleCount = Math.min(matches.length, MAX_VISIBLE);
+        const footer = matches.length > MAX_VISIBLE ? 1 : 0;
+        return visibleCount + footer;
+    }, [hasSpace, matchedCommand, matches.length]);
+
+    useEffect(() => {
+        onHeightChange?.(currentHeight);
+    }, [currentHeight, onHeightChange]);
 
     const matchesRef = useRef(matches);
     matchesRef.current = matches;
